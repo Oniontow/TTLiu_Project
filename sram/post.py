@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-type = 'SS'
+type = 'TT'
 voltage = '1.8V'
 
 with open('VQOUT1 vs VQ1.csv', 'r') as curve1:
@@ -69,9 +69,14 @@ for i in range(len(new_matrix1[0])):
     for j in range(len(new_matrix2[0])):
         if new_matrix1[0][i] <= new_matrix2[0][j]+0.5*minimal_tick and new_matrix1[0][i] >= new_matrix2[0][j]-0.5*minimal_tick:
             difference[0].append(new_matrix1[0][i])
-            difference[1].append(new_matrix1[1][i] - new_matrix2[1][j])
+            difference[1].append(np.fabs(new_matrix1[1][i] - new_matrix2[1][j]))
 
-NM = min(np.fabs(max(difference[1])), np.fabs(min(difference[1])))/np.sqrt(2)
+
+NM = 1/np.sqrt(2)
+for(i) in range(1, len(difference[0])-1):
+    if(difference[1][i] < difference[1][i-1] and difference[1][i] < difference[1][i+1]):
+        NM *= difference[1][i]
+        break
 NM = str(NM)
 NM = NM[0:5]
 plt.plot(difference[0], difference[1])
