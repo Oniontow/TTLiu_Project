@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-type = 'TT'
+type = 'TT, '
 voltage = '1.8V'
 
 with open('VQOUT1 vs VQ1.csv', 'r') as curve1:
