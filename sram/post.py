@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-type = 'FF, wa=.60'
+type = 'TT, wa=.60'
 voltage = '1.8V'
 
 with open('VQOUT1 vs VQ1.csv', 'r') as curve1:
@@ -71,21 +71,21 @@ for i in range(len(new_matrix1[0])):
             difference[0].append(new_matrix1[0][i])
             difference[1].append(np.fabs(new_matrix1[1][i] - new_matrix2[1][j]))
 
-# #for SNM, RNM
-# NM = min(np.fabs(max(difference[1])), np.fabs(min(difference[1])))
-# #end of SNM, RNM
+#for SNM, RNM
+NM = min(np.fabs(max(difference[1])), np.fabs(min(difference[1])))
+#end of SNM, RNM
 
-#for WNM
-local_max = 0
-NM = 1/np.sqrt(2)
-for i in range(1, len(difference[0])-1):
-    if(difference[1][i] < difference[1][i-1] and difference[1][i] < difference[1][i+1]):
-        NM *= difference[1][i]
-        local_max = 1
-        break
-if local_max == 0:
-    NM *= max(difference[1])
-#end of WNM
+# #for WNM
+# local_max = 0
+# NM = 1/np.sqrt(2)
+# for i in range(1, len(difference[0])-1):
+#     if(difference[1][i] < difference[1][i-1] and difference[1][i] < difference[1][i+1]):
+#         NM *= difference[1][i]
+#         local_max = 1
+#         break
+# if local_max == 0:
+#     NM *= max(difference[1])
+# #end of WNM
     
 NM = str(NM)
 NM = NM[0:5]
