@@ -69,7 +69,7 @@ for i in range(len(new_matrix1[0])):
     for j in range(len(new_matrix2[0])):
         if new_matrix1[0][i] <= new_matrix2[0][j]+0.5*minimal_tick and new_matrix1[0][i] >= new_matrix2[0][j]-0.5*minimal_tick:
             difference[0].append(new_matrix1[0][i])
-            difference[1].append(np.fabs(new_matrix1[1][i] - new_matrix2[1][j]))
+            difference[1].append(new_matrix1[1][i] - new_matrix2[1][j])
 
 #for SNM, RNM
 NM = min(np.fabs(max(difference[1])), np.fabs(min(difference[1])))
