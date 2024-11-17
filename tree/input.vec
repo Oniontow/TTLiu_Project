@@ -1,0 +1,22 @@
+;add " .VEC 'input.vec' " to your .sp file to include the vector file
+;Vector Pattern
+Radix 4444444444444444
+     +34
+vname in<[63:60]> in<[59:56]> in<[55:52]> in<[51:48]> in<[47:44]> in<[43:40]> in<[39:36]> in<[35:32]>
+     +in<[31:28]> in<[27:24]> in<[23:20]> in<[19:16]> in<[15:12]> in<[11:8]> in<[7:4]> in<[3:0]>
+     +result<[6:4]> result<[3:0]>
+io    iiiiiiiiiiiiiiii
+     +oo
+
+Tunit ns
+Period 1
+Odelay 0.6
+Trise 0.1
+Tfall 0.1
+VIH 0.9
+VIL 0
+VOH 0.8
+VOL 0.1
+
+37529DA177B11EFA 13
+142A8759D23EE1B4 12
