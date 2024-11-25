@@ -1,10 +1,10 @@
 import numpy as np
 
-VDD = 1.8
-PERIOD = 1.3
-prob = 0.9
+VDD = 1.5
+PERIOD = 10
+prob = 0.5
 length = 50
-size = 4
+size = 16
 f16= "FFFFFFFFFFFFFFFF"
 f8 = "FFFFFFFF"
 f4 = "FFFF"
@@ -86,13 +86,13 @@ with open('out.txt', 'w') as file:
         
     file.write("Tunit ns\n")
     file.write("Period " + str(PERIOD) + "\n")
-    file.write("Odelay 0.6\n")
+    file.write("Odelay 1.8\n")
     file.write("Trise 0.1\n")
     file.write("Tfall 0.1\n")
     file.write("VIH " + str(VDD) + "\n")
     file.write("VIL 0\n")
-    file.write("VOH " + str(VDD) + "\n")
-    file.write("VOL 0\n\n")
+    file.write("VOH " + str(VDD*0.9) + "\n")
+    file.write("VOL " + str(VDD*0.1) + "\n\n")
     
     
     for i in range(length):
