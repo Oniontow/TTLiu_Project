@@ -1,9 +1,9 @@
 import numpy as np
 
-VDD = 1.5
-PERIOD = 10
-prob = 0.5
-length = 50
+VDD = 1.8
+PERIOD = 2.6
+prob = 0.9
+length = 100
 size = 16
 f16= "FFFFFFFFFFFFFFFF"
 f8 = "FFFFFFFF"
@@ -18,7 +18,7 @@ for i in range(size*4):
     input_sequence = []
     for j in range(length):
         if(j == 0):
-            input_sequence.append(np.random.choice([0, 1], p=[0.5, 0.5]))
+            input_sequence.append(np.random.choice([0, 1], p=[0.7, 0.3]))
         else:
             if(np.random.rand() < prob):
                 if(input_sequence[j-1] == 1):
