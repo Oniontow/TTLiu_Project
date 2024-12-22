@@ -1,8 +1,8 @@
 import numpy as np
 
 VDD = 1.8
-PERIOD = 2.6
-prob = 0.9
+PERIOD = 2.9
+prob = 0.1
 length = 100
 size = 16
 f16= "FFFFFFFFFFFFFFFF"
@@ -18,7 +18,7 @@ for i in range(size*4):
     input_sequence = []
     for j in range(length):
         if(j == 0):
-            input_sequence.append(np.random.choice([0, 1], p=[0.7, 0.3]))
+            input_sequence.append(np.random.choice([0, 1], p=[0.5, 0.5]))
         else:
             if(np.random.rand() < prob):
                 if(input_sequence[j-1] == 1):
@@ -86,7 +86,7 @@ with open('out.txt', 'w') as file:
         
     file.write("Tunit ns\n")
     file.write("Period " + str(PERIOD) + "\n")
-    file.write("Odelay 1.8\n")
+    file.write("Odelay " + str(PERIOD) + "\n")
     file.write("Trise 0.1\n")
     file.write("Tfall 0.1\n")
     file.write("VIH " + str(VDD) + "\n")
