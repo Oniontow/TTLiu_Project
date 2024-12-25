@@ -1,7 +1,7 @@
 import numpy as np
 
 VDD = 1.8
-PERIOD = 2.9
+PERIOD = 3
 prob = 0.1
 length = 100
 size = 16
