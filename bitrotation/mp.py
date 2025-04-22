@@ -460,6 +460,35 @@ def add_simple_noise_to_quantized_model(quantized_model, noise_mean=-40, noise_s
     
     return noisy_model, layer_stats
 
+def add_mac_noise_hook_to_quantized_model(model, noise_mean=10, noise_std=5):
+    """
+    在量化模型的每個卷積層的forward輸出加上高斯噪聲（模擬MAC誤差）
+    噪聲分布：mean=10, std=5（以int8尺度），且為-x軸單邊（全為負值）
+    """
+    def mac_noise_hook(module, input, output):
+        if isinstance(output, torch.Tensor):
+            if output.is_quantized:
+                output_fp = output.dequantize()
+                scale = output.q_scale()
+                # 以 int8 尺度產生 noise，再乘以 scale
+                noise = -torch.abs(torch.randn_like(output_fp) * noise_std + noise_mean) * scale
+                noisy_fp = output_fp + noise
+                noisy_q = torch.quantize_per_tensor(
+                    noisy_fp, scale=scale, zero_point=output.q_zero_point(), dtype=output.dtype
+                )
+                return noisy_q
+            else:
+                # 若是 float tensor，直接加 noise
+                noise = -torch.abs(torch.randn_like(output) * noise_std + noise_mean)
+                return output + noise
+        return output
+
+    for module in model.modules():
+        if isinstance(module, torch.nn.quantized.Conv2d) or \
+           isinstance(module, torch.nn.intrinsic.quantized.ConvReLU2d):
+            module.register_forward_hook(mac_noise_hook)
+    return model
+
 
 # ----------------------------
 # 資料處理
@@ -493,8 +522,8 @@ model = ResNet18().to(device)
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 criterion = nn.CrossEntropyLoss()
 
-# 訓練模型（此處僅示範1個epoch）
-for epoch in range(1, 2):
+# 訓練模型（此處僅示範3個epoch）
+for epoch in range(1, 4):
     train(model, device, train_loader, optimizer, criterion, epoch)
     evaluate(model, device, val_loader, label="Validation")
 
@@ -541,15 +570,21 @@ float_model, quantized_model, quantized_weights = simple_static_quantization(
     num_samples=100
 )
 quantized_model = quantized_model.cpu()
-noisy_model, noise_stats = add_simple_noise_to_quantized_model(
-    quantized_model,
-    noise_mean=-6,
-    noise_std=1
-)
-noisy_model = noisy_model.cpu()
-
-print("\n--- Quantized Model Accuracy (Before Noise) ---")
+print("--- Quantized Model Accuracy ---")
 evaluate(quantized_model, torch.device("cpu"), test_loader, label="Quantized Model (No Noise)")
 
-print("\n--- Quantized Model Accuracy (After Noise) ---")
-evaluate(noisy_model, torch.device("cpu"), test_loader, label="Quantized Model (With Noise)")
+# noisy_model, noise_stats = add_simple_noise_to_quantized_model(
+#     quantized_model,
+#     noise_mean=-6,
+#     noise_std=1
+# )
+# noisy_model = noisy_model.cpu()
+print("--- Converting to quantized model ---")
+
+quantized_model_with_mac_noise = copy.deepcopy(quantized_model)
+quantized_model_with_mac_noise = add_mac_noise_hook_to_quantized_model(
+    quantized_model_with_mac_noise, noise_mean=5, noise_std=1
+)
+
+print("\n--- Quantized Model Accuracy (With Noise) ---")
+evaluate(quantized_model_with_mac_noise, torch.device("cpu"), test_loader, label="Quantized Model (With Noise)")
