@@ -131,7 +131,27 @@ def evaluate(model, device, loader, label="Validation"):
             correct += pred.eq(labels).sum().item()
     accuracy = correct / len(loader.dataset)
     print(f"{label} Accuracy: {accuracy:.4f}")
-    return accuracy
+    return accuracy  # 返回準確度值
+
+def plot_accuracy_comparison(accuracies, model_names):
+    """繪製不同模型準確度的長條圖比較"""
+    plt.figure(figsize=(12, 7))
+    bars = plt.bar(model_names, accuracies, color=['royalblue', 'tomato', 'forestgreen', 'darkorange'])
+    
+    # 在每個長條上方顯示準確度數值
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                 f'{height:.4f}', ha='center', va='bottom', fontsize=12)
+    
+    plt.title('模型準確度比較', fontsize=16)
+    plt.ylabel('準確度', fontsize=14)
+    plt.ylim(0, 1.0)  # 設定y軸範圍從0到1
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.xticks(rotation=10, fontsize=12)
+    plt.tight_layout()
+    plt.savefig('model_accuracy_comparison.png')
+    plt.show()
 
 # ===========================================
 # Quantization Functions
@@ -280,7 +300,7 @@ def main():
     
     # Train the model (3 epochs for demonstration)
     print("=== Training Model ===")
-    for epoch in range(1, 4):
+    for epoch in range(1, 11):
         train(model, device, train_loader, optimizer, criterion, epoch)
         evaluate(model, device, val_loader, label="Validation")
     
@@ -289,23 +309,56 @@ def main():
     float_model, quantized_model, quantized_weights = simple_static_quantization(
         model, val_loader, num_samples=100
     )
+
+    accuracies = []
+    model_names = ['Quantized (Clean)', 'Quantized (Lightning)', 'Quantized (Small Triangle)', 'Quantized (Big Triangle)']
     
     # Evaluate quantized model
     quantized_model = quantized_model.cpu()
     print("\n=== Evaluating Quantized Model ===")
-    evaluate(quantized_model, torch.device("cpu"), test_loader, label="Quantized Model (No Noise)")
+    acc = evaluate(quantized_model, torch.device("cpu"), test_loader, label="Quantized Model (No Noise)")
+    accuracies.append(acc)
     
     # Add MAC noise to quantized model
     print("\n=== Adding MAC Noise to Quantized Model ===")
-    quantized_model_with_mac_noise = copy.deepcopy(quantized_model)
-    quantized_model_with_mac_noise = add_mac_noise_hook_to_quantized_model(
-        quantized_model_with_mac_noise, noise_mean=0.1, noise_std=0.01
+    quantized_model_lightning_noise = copy.deepcopy(quantized_model)
+    quantized_model_lightning_noise = add_mac_noise_hook_to_quantized_model(
+        quantized_model_lightning_noise, noise_mean=24, noise_std=1
     )
     
-    # Evaluate noisy quantized model
+    # Evaluate noisy quantized model (lightning)
     print("\n=== Evaluating Noisy Quantized Model ===")
-    evaluate(quantized_model_with_mac_noise, torch.device("cpu"), test_loader, 
-             label="Quantized Model (With Noise)")
+    acc = evaluate(quantized_model_lightning_noise, torch.device("cpu"), test_loader, 
+             label="Quantized Model (Lightning Noise)")
+    accuracies.append(acc)
+    
+    # Add MAC noise to quantized model
+    print("\n=== Adding MAC Noise to Quantized Model ===")
+    quantized_model_smalltriangle_noise = copy.deepcopy(quantized_model)
+    quantized_model_smalltriangle_noise = add_mac_noise_hook_to_quantized_model(
+        quantized_model_smalltriangle_noise, noise_mean=3, noise_std=1
+    )
+    
+    # Evaluate noisy quantized model (small trinagle)
+    print("\n=== Evaluating Noisy Quantized Model ===")
+    acc = evaluate(quantized_model_smalltriangle_noise, torch.device("cpu"), test_loader, 
+             label="Quantized Model (SmallTriangle Noise)")
+    accuracies.append(acc)
+    
+    # Add MAC noise to quantized model
+    print("\n=== Adding MAC Noise to Quantized Model ===")
+    quantized_model_bigtriangle_noise = copy.deepcopy(quantized_model)
+    quantized_model_bigtriangle_noise = add_mac_noise_hook_to_quantized_model(
+        quantized_model_bigtriangle_noise, noise_mean=12, noise_std=1
+    )
+    
+    # Evaluate noisy quantized model (big triangle)
+    print("\n=== Evaluating Noisy Quantized Model ===")
+    acc = evaluate(quantized_model_bigtriangle_noise, torch.device("cpu"), test_loader, 
+             label="Quantized Model (Bigtriangle Noise)")
+    accuracies.append(acc)
 
+    plot_accuracy_comparison(accuracies, model_names)
+    
 if __name__ == "__main__":
     main()
