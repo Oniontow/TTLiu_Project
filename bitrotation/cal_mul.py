@@ -99,9 +99,8 @@ def simulate_and_collect(decrease_rate, iteration=10000, Analogtype=""):
                 bit_error_list[i] += 1
 
         if mult_result != 0:
-            error_rate = abs(mult_result - noisy_mult_result) / (2 ** 15) * 100
-        elif noisy_mult_result != 0:
-            error_rate = abs(mult_result - noisy_mult_result) / (2 ** 15) * 100
+            error_rate = abs(mult_result - noisy_mult_result) 
+            error_rate = abs(mult_result - noisy_mult_result) 
         else:
             error_rate = 0
 
