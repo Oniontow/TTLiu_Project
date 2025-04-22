@@ -583,7 +583,7 @@ print("--- Converting to quantized model ---")
 
 quantized_model_with_mac_noise = copy.deepcopy(quantized_model)
 quantized_model_with_mac_noise = add_mac_noise_hook_to_quantized_model(
-    quantized_model_with_mac_noise, noise_mean=5, noise_std=1
+    quantized_model_with_mac_noise, noise_mean=0.1, noise_std=0.01
 )
 
 print("\n--- Quantized Model Accuracy (With Noise) ---")
